@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String         @id @default(uuid())
+  email       String         @unique
+  password    String
+  memberships Membership[]
+  assignment   Assignment[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Org {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String
+  memberships Membership[]
+  boards      Board[]
+  pending     PendingMembership[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Membership {
+  id     String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orgId  String
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  role   Role   @default(ADMIN)
+
+  accepted  Accepted    @default(FALSE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, orgId])
+}
+
+model PendingMembership{
+  id       String    @id @default(uuid())
+  email    String
+  orgId    String
+  org      Org       @relation(fields: [orgId], references: [id])
+}
+
+model Board {
+  id       String    @id @default(uuid())
+  title    String
+
+  orgId    String
+  org      Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  sections Section[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Section {
+  id       String @id @default(uuid())
+  title    String
+  position Int    
+
+  boardId  String
+  board    Board @relation(fields: [boardId], references: [id], onDelete: Restrict)
+
+  issues   Issue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([boardId, position])
+}
+
+model Issue {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  position    Int      
+
+  sectionId   String
+  section     Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  assignment   Assignment[]
+  comment      Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sectionId, position])
+}
+
+model Comment{
+  id       String    @id @default(uuid())
+  content  String
+  issueId  String
+  issue    Issue    @relation(fields: [issueId], references: [id])
+}
+
+model Assignment {
+  id      String @id @default(uuid())
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  issueId String
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, issueId])
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum Accepted{
+  TRUE
+  FALSE
+}
