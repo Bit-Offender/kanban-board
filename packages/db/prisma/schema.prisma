@@ -14,6 +14,7 @@ model User {
   id          String         @id @default(uuid())
   email       String         @unique
   password    String
+  name        String?
   memberships Membership[]
   assignment   Assignment[]
 
@@ -24,7 +25,7 @@ model User {
 model Org {
   id          String       @id @default(uuid())
   name        String       @unique
-  description String
+  description String?
   memberships Membership[]
   boards      Board[]
   pending     PendingMembership[]
@@ -67,6 +68,7 @@ model Board {
   org      Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   sections Section[]
+  issues   Issue[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,6 +98,9 @@ model Issue {
 
   sectionId   String
   section     Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  boardId     String
+  board       Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
   assignment   Assignment[]
   comment      Comment[]

@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {
@@ -11,7 +12,10 @@
   },
   "dependencies": {
     "@types/express": "^5.0.6",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "db": "*",
     "express": "^5.2.1",
-    "db": "*"
+    "zod": "^4.4.3"
   }
 }
